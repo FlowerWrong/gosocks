@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/yinghuocho/gosocks"
 	"time"
+
+	"github.com/FlowerWrong/gosocks"
 )
 
 func main() {
