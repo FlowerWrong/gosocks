@@ -17,6 +17,7 @@ const (
 	SocksReserved = 0x00
 
 	SocksNoAuthentication    = 0x00
+	SocksAuthUserPassword    = 0x02
 	SocksNoAcceptableMethods = 0xFF
 
 	SocksIPv4Host   = 0x01
