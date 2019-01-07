@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/url"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -16,8 +17,9 @@ type ClientAuthenticator interface {
 }
 
 type SocksDialer struct {
-	Timeout time.Duration
-	Auth    ClientAuthenticator
+	Timeout    time.Duration
+	Auth       ClientAuthenticator
+	ControlFun func(fd uintptr)
 }
 
 type AnonymousClientAuthenticator struct{}
@@ -102,7 +104,15 @@ func (d *SocksDialer) Dial(rawURL string) (conn *SocksConn, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c, err := net.DialTimeout("tcp", u.Host, d.Timeout)
+	if d.ControlFun == nil {
+		d.ControlFun = func(fd uintptr) {
+		}
+	}
+	dialer := net.Dialer{Control: func(network, address string, c syscall.RawConn) error {
+		return c.Control(d.ControlFun)
+	},
+		Timeout: d.Timeout}
+	c, err := dialer.Dial("tcp", u.Host)
 	if err != nil {
 		return
 	}
